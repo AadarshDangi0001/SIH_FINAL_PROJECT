@@ -35,7 +35,7 @@ const BulletboardPage = () => {
   ];
 
   return (
-    <div className="Dashboard mt-15 w-full min-h-screen bg-[#E8FDFF] overflow-y-auto pb-10">
+    <div className="Dashboard mt-15 w-full min-h-screen bg-[#E8FDFF] overflow-y-hidden pb-10">
       {/* Hero Section */}
       <div className="DashboardUpper w-full px-4 sm:px-6 lg:px-12 xl:px-16 py-4 md:py-6 mt-20 lg:mt-0">
         <div className="DashboardGraphic w-full max-w-6xl mx-auto bg-linear-to-r from-[#3B9FFF] to-[#5FB4FF] rounded-3xl shadow-2xl relative overflow-hidden min-h-[250px] md:min-h-[300px]">
