@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, NavLink } from 'react-router-dom'
 
 const StudentNav = () => {
   const location = useLocation();
@@ -96,50 +96,90 @@ const StudentNav = () => {
               <h3 className="text-gray-500 text-sm font-medium mb-3 px-3">Main</h3>
               <div className="space-y-1">
                 {/* Add NavLinks here - you can import from StudentSidebar or duplicate */}
-                <a href="/dashboard" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                <NavLink 
+                  to="/dashboard" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-dashboard-line text-l"></i>
                   <p className="text-sm font-medium">Dashboard</p>
-                </a>
-                <a href="/chatbot" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/chatbot" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-message-2-line text-l"></i>
                   <p className="text-sm font-medium">Chat AI</p>
-                </a>
-                <a href="/bulletboard" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/bulletboard" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-book-open-line text-l"></i>
                   <p className="text-sm font-medium">Bulletin</p>
-                </a>
-                <a href="/scan-docs" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/scan-docs" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-camera-line text-l"></i>
                   <p className="text-sm font-medium">Scan Docs</p>
-                </a>
-                <a href="/whatsapp-bot" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/whatsapp-bot" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-wechat-2-line text-l"></i>
                   <p className="text-sm font-medium">WhatsApp Bot</p>
-                </a>
-                <a href="/volunteer" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/volunteer" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-wechat-line text-l"></i>
                   <p className="text-sm font-medium">Volunteers Help</p>
-                </a>
-                <a href="/offline-bot" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/offline-bot" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-wifi-off-line text-l"></i>
                   <p className="text-sm font-medium">Offline Mode</p>
-                </a>
-                <a href="/agentic" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/agentic" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-computer-line text-l"></i>
                   <p className="text-sm font-medium">AI Agent</p>
-                </a>
-                <a href="/about" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                </NavLink>
+                <NavLink 
+                  to="/about" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-notification-line text-l"></i>
                   <p className="text-sm font-medium">About Us</p>
-                </a>
+                </NavLink>
               </div>
               
               {/* Settings */}
               <div className="mt-6 pt-4 border-t border-gray-800">
-                <a href="/settings" className='flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors'>
+                <NavLink 
+                  to="/settings" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400 transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
+                >
                   <i className="ri-settings-2-line text-l"></i>
                   <p className="text-sm font-medium">Settings</p>
-                </a>
+                </NavLink>
               </div>
             </div>
           </div>
