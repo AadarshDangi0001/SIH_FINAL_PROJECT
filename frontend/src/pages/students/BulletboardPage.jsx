@@ -38,18 +38,18 @@ const BulletboardPage = () => {
     <div className="Dashboard mt-15 w-full min-h-screen bg-[#E8FDFF] overflow-y-hidden pb-10">
       {/* Hero Section */}
       <div className="DashboardUpper w-full px-4 sm:px-6 lg:px-12 xl:px-16 py-4 md:py-6 mt-20 lg:mt-0">
-        <div className="DashboardGraphic w-full max-w-6xl mx-auto bg-linear-to-r from-[#3B9FFF] to-[#5FB4FF] rounded-3xl shadow-2xl relative overflow-hidden min-h-[250px] md:min-h-[300px]">
+        <div className="DashboardGraphic w-full max-w-6xl mx-auto bg-linear-to-r from-[#3B9FFF] to-[#5FB4FF] rounded-3xl shadow-2xl relative overflow-hidden min-h-[220px] md:min-h-[300px] flex items-center">
           {/* Kid Image */}
           <img
-            className="absolute left-0 md:left-8 bottom-0 h-[90%] md:h-full object-contain z-10"
+            className="absolute left-2 bottom-0 h-[85%] md:left-8 md:h-full object-contain z-10"
             src="/imgs/kid2.png"
             alt="Bulletin kid"
           />
           
           {/* Text Content */}
-          <div className="relative z-20 p-6 sm:p-8 md:p-12 lg:p-16 flex items-center justify-end h-full">
+          <div className="relative z-20 w-full h-full flex items-center justify-center md:justify-end p-4 sm:p-8 md:p-12 lg:p-16">
             <h1
-              className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-normal leading-tight sm:leading-snug max-w-[60%] md:max-w-[65%] text-right"
+              className="text-sm sm:text-xl md:text-2xl lg:text-3xl text-white font-normal leading-tight sm:leading-snug max-w-[50%] md:max-w-[55%] text-center md:text-right ml-auto"
               style={{ fontFamily: "Righteous, sans-serif" }}
             >
               Never miss critical updates like fees, exams, circulars, and schedules with our smart bulletin system.
