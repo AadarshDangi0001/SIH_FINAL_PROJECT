@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./../../styles/loginpage.css";
 
 // Future backend URL
@@ -8,6 +9,7 @@ const USE_BACKEND = false;
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -66,8 +68,13 @@ const LoginPage = () => {
 
     if (!USE_BACKEND) {
       console.log("Mock login (no backend yet):", formData);
-      alert("Logged in successfully!");
-      navigate("/");
+      const userData = {
+        email: formData.email,
+        firstName: formData.email.split('@')[0],
+        lastName: ""
+      };
+      login(userData);
+      navigate("/dashboard");
       setIsSubmitting(false);
       return;
     }
@@ -91,7 +98,8 @@ const LoginPage = () => {
         return;
       }
 
-      navigate("/");
+      login(data.user || { email: formData.email });
+      navigate("/dashboard");
     } catch (err) {
       setApiError(err.message || "Failed to login");
     } finally {

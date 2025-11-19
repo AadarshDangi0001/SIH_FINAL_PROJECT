@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "../../styles/registerpage.css";
 
 const SIGNUP_API_URL = "https://your-backend.com/api/auth/signup";
@@ -7,6 +8,7 @@ const USE_BACKEND = false;
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -77,8 +79,13 @@ const RegisterPage = () => {
 
     if (!USE_BACKEND) {
       console.log("Mock signup :", formData);
-      alert("Account created successfully!");
-      navigate("/");
+      const userData = {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName
+      };
+      signup(userData);
+      navigate("/dashboard");
       setIsSubmitting(false);
       return;
     }
@@ -103,7 +110,12 @@ const RegisterPage = () => {
         return;
       }
 
-      navigate("/");
+      signup(data.user || { 
+        email: formData.email, 
+        firstName: formData.firstName, 
+        lastName: formData.lastName 
+      });
+      navigate("/dashboard");
     } catch (err) {
       setApiError(err.message || "Failed to create account");
     } finally {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import ProtectedRoute from '../components/ProtectedRoute'
 import StudentLayout from '../layout/StudentLayout'
 import DashboardPage from '../pages/students/DashboardPage'
 import ChatbotPage from '../pages/students/ChatbotPage'
@@ -11,11 +12,22 @@ import AboutPage from '../pages/students/AboutPage'
 import OfflinebotPage from '../pages/students/OfflinebotPage'
 import AgenticPage from '../pages/students/AgenticPage'
 import Setting from '../pages/students/Setting'
+import LoginPage from '../pages/auth/LoginPage'
+import RegisterPage from '../pages/auth/RegisterPage'
 
 const StudentRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<StudentLayout />}>
+      {/* Auth Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<RegisterPage />} />
+      
+      {/* Protected Student Routes */}
+      <Route path="/" element={
+        <ProtectedRoute>
+          <StudentLayout />
+        </ProtectedRoute>
+      }>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="chatbot" element={<ChatbotPage />} />
