@@ -79,8 +79,8 @@ const ChatbotPage = () => {
         {/* Welcome Text */}
         {!currentChatId && messages.length === 0 && (
           <div className="absolute w-full px-14 py-28 text-center lg:flex lg:flex-col lg:items-center">
-            <h2 className="text-3xl lg:text-4xl font-bold">
-              Welcome to <span className="bg-[#FF993A] text-white px-4 py-1 rounded-xl">Your AI</span>
+            <h2 className="text-2xl lg:text-4xl font-bold">
+              Welcome to <span className="bg-[#FF993A] text-white px-4 py-1 rounded-xl">Askly</span>
             </h2>
             <p className="text-xs lg:text-sm ml-2 mt-2">
               The power of AI at your service - Tame the knowledge
