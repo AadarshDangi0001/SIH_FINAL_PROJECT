@@ -6,7 +6,7 @@ import LoginPage from './pages/auth/LoginPage.jsx'
 function App() {
   return (
     <>
-     <StudentRoutes/>
+    <StudentRoutes/> 
      {/* <RegisterPage/> */}
      {/* <LoginPage/> */}
     </>

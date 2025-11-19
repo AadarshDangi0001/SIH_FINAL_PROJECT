@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LoginLogo from "../../assets/LoginLogo.png";
-import signupCha from "../../assets/kidcar.png";
-import google from "../../assets/google.png";
-import "./signup.css";
+import "../../styles/registerpage.css";
 
 const SIGNUP_API_URL = "https://your-backend.com/api/auth/signup";
 const USE_BACKEND = false;
@@ -118,8 +115,8 @@ const RegisterPage = () => {
     <div className="signup-main">
       <div className="signup-container">
         <div className="signup-images">
-          <img className="signup-car" src={signupCha} alt="" />
-          <img className="signup-logo" src={LoginLogo} alt="" />
+          <img className="signup-car" src="/imgs/kidcar.png" alt="" />
+          <img className="signup-logo" src="/imgs/LoginLogo.png" alt="" />
         </div>
 
         <div className="signup-text">
@@ -230,7 +227,7 @@ const RegisterPage = () => {
 
         <div className="signup-google">
           <div className="signup-img-container">
-            <img src={google} alt="" />
+            <img src="/imgs/google.png" alt="" />
           </div>
         </div>
       </div>

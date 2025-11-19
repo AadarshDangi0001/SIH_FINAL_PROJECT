@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LoginLogo from "../../assets/LoginLogo.png";
-import bike from "../../assets/kidbike.png";
-import google from "../../assets/google.png";
-import "./login-styles.css";
+import "./../../styles/loginpage.css";
 
 // Future backend URL
 const LOGIN_API_URL = "https://your-backend.com/api/auth/login";
@@ -106,8 +103,8 @@ const LoginPage = () => {
  <div className="login-main">
       <div className="login-container">
         <div className="login-images">
-          <img className="login-car" src={bike} alt="" />
-          <img className="login-logo" src={LoginLogo} alt="" />
+          <img className="login-car" src="/imgs/kidbike.png" alt="" />
+          <img className="login-logo" src="/imgs/LoginLogo.png" alt="" />
         </div>
 
         <div className="login-text">
@@ -174,7 +171,7 @@ const LoginPage = () => {
 
         <div className="login-google">
           <div className="login-img-container">
-            <img src={google} alt="" />
+            <img src="/imgs/google.png" alt="" />
           </div>
         </div>
       </div>
