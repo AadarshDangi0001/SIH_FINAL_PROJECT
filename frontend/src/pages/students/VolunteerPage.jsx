@@ -90,7 +90,7 @@ const VolunteerPage = () => {
       </div>
 
       {/* Fixed Input at Bottom */}
-      <div className="fixed bottom-0  w-screen right-0 bg-[#E8FDFF] border-t border-gray-200 py-4 px-8 lg:px-16 lg:w-[83vw]">
+      <div className="fixed bottom-0 z-40 w-screen right-0 bg-[#E8FDFF] border-t border-gray-200 py-4 px-8 lg:px-16 lg:w-[82vw]">
         <form onSubmit={handleSendMessage} className="w-full max-w-5xl mx-auto relative">
           <input
             type="text"

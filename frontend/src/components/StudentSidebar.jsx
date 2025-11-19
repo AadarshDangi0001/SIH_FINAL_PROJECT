@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 
 const StudentSidebar = () => {
   return (
-    <div className='h-screen fixed w-[17vw] bg-[#1a1a1a] flex-col px-4 py-0 overflow-y-auto hidden lg:flex'>
+    <div className='h-screen z-100 fixed w-[17vw] bg-[#1a1a1a] flex-col px-4 py-0 overflow-y-auto hidden lg:flex'>
        {/* Logo */}
        <div className="mb-0 sticky top-0 bg-[#1a1a1a] z-10">
          <img src="/imgs/asklylogo_main.png" alt="Askly" className="w-full px-2" />
