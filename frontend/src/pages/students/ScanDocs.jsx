@@ -18,7 +18,7 @@ const ScanDocs = () => {
   };
 
   return (
-    <div className="w-screen min-h-screen mt-10 bg-[#E8FDFF] overflow-y-auto pb-10 lg:w-[83vw]">
+    <div className="w-screen min-h-screen mt-10 bg-[#E8FDFF] overflow-y-auto pb-10 lg:w-full">
       {/* Main Container */}
       <div className="w-full px-8 lg:px-16 py-6 mt-20 lg:mt-6">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">

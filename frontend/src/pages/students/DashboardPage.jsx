@@ -29,7 +29,7 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="Dashboard w-screen   mt-15 h-[92vh] bg-[#E8FDFF] overflow-y-auto pb-10 lg:w-[83vw]">
+    <div className="Dashboard w-screen   mt-15 h-[92vh] bg-[#E8FDFF] overflow-y-auto pb-10 lg:w-full">
       {/* Hero Section */}
       <div className="DashboardUpper w-full px-0 lg:px-16 py-0 lg:py-6 mt-20 lg:mt-6">
         <div className="DashboardGraphic w-full bg-linear-to-r from-[#3B9FFF] to-[#5FB4FF] rounded-0 lg:rounded-[3rem] shadow-2xl relative overflow-hidden min-h-[300px] ">

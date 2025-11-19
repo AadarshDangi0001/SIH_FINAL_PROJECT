@@ -96,7 +96,7 @@ const StudentSidebar = () => {
        </div>
 
        {/* Settings at Bottom */}
-       <div className="mt-auto pt-4 border-t border-gray-800">
+       <div className="mt-auto pt-4 mb-4 border-t border-gray-800">
          <NavLink 
            to="/settings"
            className={({isActive}) => `flex items-center gap-4 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-blue-400  transition-colors ${isActive ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}

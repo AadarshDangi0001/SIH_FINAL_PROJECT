@@ -1,224 +1,241 @@
-import React, { useState } from 'react'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import LoginLogo from "../../assets/LoginLogo.png";
+import signupCha from "../../assets/kidcar.png";
+import google from "../../assets/google.png";
+import "./signup.css";
+
+const SIGNUP_API_URL = "https://your-backend.com/api/auth/signup";
+const USE_BACKEND = false;
 
 const RegisterPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agree: false,
   });
 
-  const handleInputChange = (e) => {
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+    setApiError("");
   };
 
-  const handleSubmit = (e) => {
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) newErrors.email = "Enter a valid email";
+    }
+
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    if (!formData.confirmPassword)
+      newErrors.confirmPassword = "Please confirm your password";
+    else if (formData.confirmPassword !== formData.password)
+      newErrors.confirmPassword = "Passwords do not match";
+
+    if (!formData.agree)
+      newErrors.agree = "You must accept Terms & Privacy Policies";
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setApiError("");
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    if (!USE_BACKEND) {
+      console.log("Mock signup :", formData);
+      alert("Account created successfully!");
+      navigate("/");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(SIGNUP_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setApiError(data.message || "Something went wrong. Please try again.");
+        return;
+      }
+
+      navigate("/");
+    } catch (err) {
+      setApiError(err.message || "Failed to create account");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#E8FDFF] flex items-center justify-center p-0 lg:p-4">
-      <div className="w-full lg:w-[60vw] max-w-6xl h-screen lg:h-[85vh] bg-white lg:rounded-3xl shadow-2xl overflow-hidden">
-        <div className="flex flex-col lg:flex-row h-full">
-          {/* Left Section - Image */}
-          <div className="hidden lg:flex lg:w-1/2 bg-white p-4 lg:p-6 flex-col items-center justify-center">
-            <img
-              src="/imgs/kid3.png"
-              alt="Sign up character"
-              className="w-full max-w-sm object-contain"
-            />
-          </div>
+    <div className="signup-main">
+      <div className="signup-container">
+        <div className="signup-images">
+          <img className="signup-car" src={signupCha} alt="" />
+          <img className="signup-logo" src={LoginLogo} alt="" />
+        </div>
 
-          {/* Right Section - Form */}
-          <div className="w-full lg:w-1/2 p-6 lg:p-6 flex flex-col justify-center overflow-y-auto relative">
-            {/* Logo */}
-            <div className="flex justify-end mb-6">
-              <img
-                src="/imgs/logomini.png"
-                alt="Askly Logo"
-                className="h-12 lg:h-20 object-contain"
-              />
+        <div className="signup-text">
+          <h3>Sign up</h3>
+          <p>Let's get you all set up so you can access your personal account</p>
+        </div>
+
+        <div className="signup-forms">
+          <form className="signup-form-container" onSubmit={handleSubmit} noValidate>
+            <div className="signup-name-row">
+              <div className="signup-input-group signup-floating">
+                <label>First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="john"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+                {errors.firstName && <span className="signup-error-text">{errors.firstName}</span>}
+              </div>
+
+              <div className="signup-input-group signup-floating">
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="doe"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+                {errors.lastName && <span className="signup-error-text">{errors.lastName}</span>}
+              </div>
             </div>
 
-            {/* Mobile Character Image */}
-            <div className="flex lg:hidden justify-center mb-6">
-              <img
-                src="/imgs/kid3.png"
-                alt="Sign up character"
-                className="w-48 h-48 object-contain"
+            <div className="signup-input-group signup-floating">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="john.doe@gmail.com"
+                value={formData.email}
+                onChange={handleChange}
               />
+              {errors.email && <span className="signup-error-text">{errors.email}</span>}
             </div>
 
-            {/* Form Header */}
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Sign up</h1>
-            <p className="text-gray-500 text-sm mb-6">Let's get you all st up so you can access your personal account.</p>
+            <div className="signup-input-group signup-floating">
+              <label>Password</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="•••••••••••"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              {errors.password && <span className="signup-error-text">{errors.password}</span>}
+            </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* First Name and Last Name */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="john.doe@gmail.com"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="john.doe@gmail.com"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
+            <div className="signup-input-group signup-floating">
+              <label>Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="•••••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+              {errors.confirmPassword && (
+                <span className="signup-error-text">{errors.confirmPassword}</span>
+              )}
+            </div>
 
-              {/* Email */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="john.doe@gmail.com"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="••••••••••••••••••••"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    <i className={`ri-eye-${showPassword ? 'off' : ''}line text-xl`}></i>
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    placeholder="••••••••••••••••••••"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    <i className={`ri-eye-${showConfirmPassword ? 'off' : ''}line text-xl`}></i>
-                  </button>
-                </div>
-              </div>
-
-              {/* Terms and Conditions */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label className="text-sm text-gray-600">
-                  I agree to all the{' '}
-                  <a href="#" className="text-[#FF993A] hover:underline">Terms</a>
-                  {' '}and{' '}
-                  <a href="#" className="text-[#FF993A] hover:underline">Privacy Policies</a>
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="w-full bg-[#FF993A] hover:bg-[#FF8A3D] text-white font-semibold py-2 text-sm rounded-lg transition-colors"
-              >
-                Create account
-              </button>
-
-              {/* Login Link */}
-              <p className="text-center text-sm text-gray-600">
-                Already have an account?{' '}
-                <a href="/login" className="text-[#FF993A] hover:underline font-medium">
-                  Login
-                </a>
+            <div className="signup-checkbox-row">
+              <input
+                type="checkbox"
+                name="agree"
+                checked={formData.agree}
+                onChange={handleChange}
+              />
+              <p>
+                I agree to all the <span className="signup-link">Terms</span> and{" "}
+                <span className="signup-link">Privacy Policies</span>
               </p>
+            </div>
+            {errors.agree && <span className="signup-error-text">{errors.agree}</span>}
 
-              {/* Divider */}
-              <div className="relative my-3">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or Sign up with</span>
-                </div>
-              </div>
+            {apiError && <div className="signup-api-error">{apiError}</div>}
 
-              {/* Google Sign Up */}
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-3 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <img
-                  src="https://www.google.com/favicon.ico"
-                  alt="Google"
-                  className="w-5 h-5"
-                />
-                <span className="text-gray-700 font-medium">Sign up with Google</span>
-              </button>
-            </form>
+            <button type="submit" className="signup-submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? "Creating account..." : "Create account"}
+            </button>
+          </form>
+        </div>
+
+        <div className="signup-already-acc">
+          <p>
+            Already have an account?{" "}
+            <span onClick={() => navigate("/login")}>Login</span>
+          </p>
+        </div>
+
+        <div className="signup-with">
+          <div className="signup-line"></div>
+          <p>or Sign up with</p>
+          <div className="signup-line"></div>
+        </div>
+
+        <div className="signup-google">
+          <div className="signup-img-container">
+            <img src={google} alt="" />
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RegisterPage
+export default RegisterPage;

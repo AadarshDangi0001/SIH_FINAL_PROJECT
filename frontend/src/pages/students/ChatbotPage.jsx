@@ -74,7 +74,7 @@ const ChatbotPage = () => {
   };
 
   return (
-    <div className="w-screen  bg-[#E8FDFF] h-[90vh] mt-20 lg:w-[83vw] ">
+    <div className="w-screen  bg-[#E8FDFF] h-[90vh] mt-20 lg:w-full ">
       <div className="h-[98%] w-[98%] lg:w-[78%] lg:ml-12 flex flex-col bg-[#CAECFF] rounded-2xl relative ">
         {/* Welcome Text */}
         {!currentChatId && messages.length === 0 && (
