@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/auth.service";
 import "../../styles/registerpage.css";
-
-const SIGNUP_API_URL = "https://your-backend.com/api/auth/signup";
-const USE_BACKEND = false;
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -77,44 +75,21 @@ const RegisterPage = () => {
 
     setIsSubmitting(true);
 
-    if (!USE_BACKEND) {
-      console.log("Mock signup :", formData);
-      const userData = {
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      };
-      signup(userData);
-      navigate("/dashboard");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const response = await fetch(SIGNUP_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
-        credentials: "include",
+      const data = await authService.register({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
       });
 
-      const data = await response.json();
+      const userData = {
+        email: data.user?.email || formData.email,
+        firstName: data.user?.fullName?.firstName || formData.firstName,
+        lastName: data.user?.fullName?.lastName || formData.lastName
+      };
 
-      if (!response.ok) {
-        setApiError(data.message || "Something went wrong. Please try again.");
-        return;
-      }
-
-      signup(data.user || { 
-        email: formData.email, 
-        firstName: formData.firstName, 
-        lastName: formData.lastName 
-      });
+      signup(userData);
       navigate("/dashboard");
     } catch (err) {
       setApiError(err.message || "Failed to create account");

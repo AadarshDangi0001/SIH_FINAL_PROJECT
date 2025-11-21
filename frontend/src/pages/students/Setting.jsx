@@ -1,14 +1,23 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { authService } from '../../services/auth.service'
 
 const Setting = () => {
   const navigate = useNavigate()
   const { logout } = useAuth()
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+      logout()
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still logout locally even if API fails
+      logout()
+      navigate('/login')
+    }
   }
 
   return (

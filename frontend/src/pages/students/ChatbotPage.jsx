@@ -1,19 +1,87 @@
 import React, { useState, useRef, useEffect } from "react";
+import { chatService } from "../../services/chat.service";
+import socketService from "../../services/socket.service";
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chats, setChats] = useState([
-    { _id: 1, title: "Chat 1 this is" },
-    { _id: 2, title: "Web accessibility" },
-    { _id: 3, title: "Design inspiration" },
-    { _id: 4, title: "What is machine" },
-  ]);
+  const [chats, setChats] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingChats, setLoadingChats] = useState(true);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
 
   const chatEndRef = useRef(null);
+
+  // Load chats on mount
+  useEffect(() => {
+    fetchChats();
+    
+    // Connect to socket
+    socketService.connect();
+
+    // Listen for AI responses
+    socketService.onResponse((data) => {
+      setMessages((prev) => [
+        ...prev,
+        { role: "model", content: data.message, chat: data.chat },
+      ]);
+      setIsLoading(false);
+    });
+
+    // Listen for errors
+    socketService.onError((error) => {
+      console.error('Socket error:', error);
+      setMessages((prev) => [
+        ...prev,
+        { 
+          role: "model", 
+          content: "Sorry, I encountered an error. Please try again." 
+        },
+      ]);
+      setIsLoading(false);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socketService.offResponse();
+      socketService.offError();
+      socketService.disconnect();
+    };
+  }, []);
+
+  // Fetch all chats
+  const fetchChats = async () => {
+    try {
+      setLoadingChats(true);
+      const data = await chatService.getChats();
+      setChats(data.chats || []);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  // Load messages when chat changes
+  useEffect(() => {
+    if (currentChatId) {
+      fetchMessages(currentChatId);
+    }
+  }, [currentChatId]);
+
+  // Fetch messages for a chat
+  const fetchMessages = async (chatId) => {
+    try {
+      const data = await chatService.getMessages(chatId);
+      setMessages(data.messages || []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      setMessages([]);
+    }
+  };
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -21,36 +89,77 @@ const ChatbotPage = () => {
   }, [messages]);
 
   // Send message
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    // Add user message to UI
-    setMessages((prev) => [...prev, { role: "user", content: input }]);
+    // If no chat selected, create one first
+    if (!currentChatId) {
+      await handleNewChat(input);
+      return;
+    }
 
-    // Simulate loading
+    const userMessage = input.trim();
+    setInput("");
+
+    // Add user message to UI immediately
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      // Send message via socket
+      socketService.sendMessage(currentChatId, userMessage);
+      
+      // Response will come through socket.onResponse listener
+    } catch (error) {
+      console.error('Error sending message:', error);
       setMessages((prev) => [
         ...prev,
-        { role: "model", content: "This is a simulated AI response." },
+        { 
+          role: "model", 
+          content: "Sorry, I encountered an error. Please try again." 
+        },
       ]);
       setIsLoading(false);
-    }, 1000);
-
-    // Clear input
-    setInput("");
+    }
   };
 
   // Create a new chat
-  const handleNewChat = () => {
-    const newChat = {
-      _id: chats.length + 1,
-      title: `New Chat ${chats.length + 1}`,
-    };
-    setChats((prev) => [newChat, ...prev]);
-    setCurrentChatId(newChat._id);
-    setMessages([]);
+  const handleNewChat = async (firstMessage = null) => {
+    try {
+      let title = 'New Chat';
+      
+      // Only generate title from message if it's a string
+      if (firstMessage && typeof firstMessage === 'string') {
+        title = firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '');
+      } else if (chats.length > 0) {
+        title = `New Chat ${chats.length + 1}`;
+      }
+      
+      const data = await chatService.createChat(title);
+      
+      // Add new chat to list
+      setChats((prev) => [data.chat, ...prev]);
+      setCurrentChatId(data.chat._id);
+      setMessages([]);
+      
+      // If there's a first message, send it
+      if (firstMessage && typeof firstMessage === 'string') {
+        setInput(firstMessage);
+        // Trigger send after chat is created
+        setTimeout(() => {
+          const form = document.querySelector('form');
+          if (form) {
+            form.dispatchEvent(
+              new Event('submit', { cancelable: true, bubbles: true })
+            );
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error creating chat:', error);
+      alert('Failed to create new chat');
+    }
   };
 
   // Toggle sidebar (mobile only)
@@ -59,17 +168,79 @@ const ChatbotPage = () => {
   // Switch to a different chat
   const switchChat = (chatId) => {
     setCurrentChatId(chatId);
-    setMessages([]); // Clear messages for demo
     setSidebarOpen(false); // Close sidebar on mobile
   };
 
   // Delete a chat
-  const deleteChat = (chatId, e) => {
+  const deleteChat = async (chatId, e) => {
     e.stopPropagation();
-    setChats((prev) => prev.filter((chat) => chat._id !== chatId));
-    if (chatId === currentChatId) {
-      setCurrentChatId(null);
-      setMessages([]);
+    
+    if (!confirm('Are you sure you want to delete this chat?')) {
+      return;
+    }
+    
+    try {
+      await chatService.deleteChat(chatId);
+      
+      // Remove from UI
+      setChats((prev) => prev.filter((chat) => chat._id !== chatId));
+      
+      if (chatId === currentChatId) {
+        setCurrentChatId(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      alert('Failed to delete chat');
+    }
+  };
+
+  // Start editing chat title
+  const startEditingChat = (chat, e) => {
+    e.stopPropagation();
+    setEditingChatId(chat._id);
+    setEditingTitle(chat.title);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingChatId(null);
+    setEditingTitle("");
+  };
+
+  // Save edited title
+  const saveEditedTitle = async (chatId, e) => {
+    e.stopPropagation();
+    
+    if (!editingTitle.trim()) {
+      alert('Title cannot be empty');
+      return;
+    }
+    
+    try {
+      const data = await chatService.updateChatTitle(chatId, editingTitle.trim());
+      
+      // Update in UI
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat._id === chatId ? { ...chat, title: data.chat.title } : chat
+        )
+      );
+      
+      setEditingChatId(null);
+      setEditingTitle("");
+    } catch (error) {
+      console.error('Error updating chat title:', error);
+      alert('Failed to update chat title');
+    }
+  };
+
+  // Handle key press in edit mode
+  const handleEditKeyPress = (chatId, e) => {
+    if (e.key === 'Enter') {
+      saveEditedTitle(chatId, e);
+    } else if (e.key === 'Escape') {
+      cancelEditing();
     }
   };
 
@@ -139,7 +310,7 @@ const ChatbotPage = () => {
 
         {/* Right Sidebar - Chat List */}
         <div
-          className={`fixed top-20 lg:top-20 right-0 lg:right-4 h-[88vh] lg:h-[88.5vh] w-[40%] lg:w-[13%] bg-[#CAECFF] shadow-lg lg:rounded-2xl transition-transform duration-300 ease-in-out flex flex-col p-4 z-9999 ${
+          className={`fixed top-20 lg:top-20 right-0 lg:right-4 h-[88vh] lg:h-[88.5vh] w-[60%] lg:w-[13%] bg-[#CAECFF] shadow-lg lg:rounded-2xl transition-transform duration-300 ease-in-out flex flex-col p-4 z-9999 ${
             sidebarOpen ? "translate-x-0" : "translate-x-full"
           } lg:translate-x-0`}
         >
@@ -165,23 +336,62 @@ const ChatbotPage = () => {
             </p>
 
             <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(88vh-60px)]">
-              {chats.length === 0 && <p className="text-center">No chats yet</p>}
+              {loadingChats && (
+                <p className="text-center text-sm text-gray-500">Loading chats...</p>
+              )}
+              {!loadingChats && chats.length === 0 && (
+                <p className="text-center text-sm text-gray-500">No chats yet</p>
+              )}
               {chats.map((chat) => (
                 <div
                   key={chat._id}
-                  onClick={() => switchChat(chat._id)}
-                  className={`p-3 bg-[#D0E1E7] rounded-lg cursor-pointer flex items-center gap-2 relative hover:bg-[#b0d4e7] transition-colors ${
+                  onClick={() => editingChatId !== chat._id && switchChat(chat._id)}
+                  className={`p-3 bg-[#D0E1E7] rounded-lg cursor-pointer flex items-center gap-2 relative hover:bg-[#b0d4e7] transition-colors group ${
                     currentChatId === chat._id ? "bg-[#b0d4e7] border-l-[3px] border-[#FF993A]" : ""
                   }`}
                 >
-                  <i className="ri-chat-4-line"></i>
-                  <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm">
-                    {chat.title}
-                  </span>
-                  <i
-                    onClick={(e) => deleteChat(chat._id, e)}
-                    className="ri-delete-bin-line text-gray-600 hover:text-red-500 transition-colors opacity-0 hover:opacity-100 group-hover:opacity-100"
-                  ></i>
+                  <i className="ri-chat-4-line shrink-0"></i>
+                  
+                  {editingChatId === chat._id ? (
+                    <div className="flex-1 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="text"
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onKeyDown={(e) => handleEditKeyPress(chat._id, e)}
+                        className="flex-1 px-2 py-1 text-xs rounded border border-[#FF993A] focus:outline-none focus:ring-1 focus:ring-[#FF993A]"
+                        autoFocus
+                      />
+                      <i
+                        onClick={(e) => saveEditedTitle(chat._id, e)}
+                        className="ri-check-line text-green-600 hover:text-green-700 cursor-pointer"
+                        title="Save"
+                      ></i>
+                      <i
+                        onClick={cancelEditing}
+                        className="ri-close-line text-red-600 hover:text-red-700 cursor-pointer"
+                        title="Cancel"
+                      ></i>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm">
+                        {chat.title}
+                      </span>
+                      <div className="flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                        <i
+                          onClick={(e) => startEditingChat(chat, e)}
+                          className="ri-edit-line text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+                          title="Rename"
+                        ></i>
+                        <i
+                          onClick={(e) => deleteChat(chat._id, e)}
+                          className="ri-delete-bin-line text-red-600 hover:text-red-700 transition-colors cursor-pointer"
+                          title="Delete"
+                        ></i>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

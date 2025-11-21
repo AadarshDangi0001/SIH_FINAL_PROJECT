@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/auth.service";
 import "./../../styles/loginpage.css";
-
-// Future backend URL
-const LOGIN_API_URL = "https://your-backend.com/api/auth/login";
-const USE_BACKEND = false;
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -66,42 +63,22 @@ const LoginPage = () => {
 
     setIsSubmitting(true);
 
-    if (!USE_BACKEND) {
-      console.log("Mock login (no backend yet):", formData);
-      const userData = {
-        email: formData.email,
-        firstName: formData.email.split('@')[0],
-        lastName: ""
-      };
-      login(userData);
-      navigate("/dashboard");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const response = await fetch(LOGIN_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email.trim(),
-          password: formData.password,
-        }),
-        credentials: "include",
+      const data = await authService.login({
+        email: formData.email.trim(),
+        password: formData.password,
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        setApiError(data.message || "Invalid email or password");
-        return;
-      }
+      const userData = {
+        email: data.user?.email || formData.email,
+        firstName: data.user?.fullName?.firstName || formData.email.split('@')[0],
+        lastName: data.user?.fullName?.lastName || ""
+      };
 
-      login(data.user || { email: formData.email });
+      login(userData);
       navigate("/dashboard");
     } catch (err) {
-      setApiError(err.message || "Failed to login");
+      setApiError(err.message || "Invalid email or password");
     } finally {
       setIsSubmitting(false);
     }

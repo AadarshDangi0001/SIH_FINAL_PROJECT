@@ -1,20 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import { scanService } from '../../services/scan.service';
 
 const ScanDocs = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [scannedImage, setScannedImage] = useState(null);
+  const cameraInputRef = useRef(null);
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      // Handle file upload logic here
+      setError("");
+      setLoading(true);
+      
+      try {
+        const result = await scanService.scanDocument(file);
+        setOutput(result.explanation || "No explanation provided.");
+        setScannedImage(result.imageUrl);
+        setError("");
+      } catch (err) {
+        setError(err?.message || "Failed to scan document. Please try again.");
+        setOutput("");
+        setScannedImage(null);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handleCameraCapture = () => {
-    // Handle camera capture logic here
-    console.log("Open camera");
+    cameraInputRef.current?.click();
   };
 
   return (
@@ -75,21 +93,75 @@ const ScanDocs = () => {
               <button
                 onClick={handleCameraCapture}
                 className="w-full bg-[#FFE4C4] hover:bg-[#FFD9B3] text-[#FF9D5C] font-medium py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                disabled={loading}
               >
                 <i className="ri-camera-line text-xl"></i>
                 Open Camera & Take Photo
               </button>
+
+              {/* Hidden camera input */}
+              <input
+                ref={cameraInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleFileSelect}
+                accept="image/*"
+                capture="environment"
+              />
+
+              {/* Loading State */}
+              {loading && (
+                <div className="w-full text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#FF9D5C] border-t-transparent"></div>
+                  <p className="text-sm text-gray-500 mt-2">Analyzing document...</p>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="w-full bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* Selected File Info */}
+              {selectedFile && !loading && (
+                <div className="w-full bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                  <i className="ri-file-check-line"></i>
+                  <span className="truncate">{selectedFile.name}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Scanned Image Preview */}
+        {scannedImage && (
+          <div className="mt-8 lg:mt-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">Scanned Document</h2>
+            <div className="bg-white rounded-3xl p-6 shadow-md">
+              <img 
+                src={scannedImage} 
+                alt="Scanned document" 
+                className="w-full h-auto rounded-xl max-h-[400px] object-contain"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Output Section */}
         <div className="mt-8 lg:mt-12">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6">Output</h2>
-          <div className="bg-[#CAECFF] rounded-3xl p-8 lg:p-12 h-[250px] shadow-md">
-            <p className="text-gray-700 text-lg">
-              {output || "After upload your docs you will get all information here.."}
-            </p>
+          <div className="bg-[#CAECFF] rounded-3xl p-8 lg:p-12 min-h-[250px] shadow-md">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500 text-lg">Processing your document...</p>
+              </div>
+            ) : (
+              <p className="text-gray-700 text-lg whitespace-pre-line">
+                {output || "After upload your docs you will get all information here.."}
+              </p>
+            )}
           </div>
         </div>
       </div>
